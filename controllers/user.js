@@ -15,14 +15,16 @@ const getUsers = async( req = request, res = response ) => {
     // const total = await User.count( { status: true } );
 
     const [total, users] = await Promise.all([
-        
+
         User.count({ status: true }),
-        
+
         User.find({ status: true })
             .limit(Number(limit))
             .skip(Number(from))
 
     ]);
+
+    
 
     res.json( {
         total, 
@@ -72,8 +74,12 @@ const deleteUser = async( req = request, res = response ) => {
 
     //const usuarioEliminar = await User.findByIdAndDelete( id );
     const usuarioEliminar = await User.findByIdAndUpdate( id, { status: false } );
+    const usuarioAutenticado = req.user;
 
-    res.json( usuarioEliminar );
+    res.json( {
+        usuarioEliminar,
+        usuarioAutenticado
+    } );
 
 }
 

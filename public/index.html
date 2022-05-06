@@ -1,12 +1,71 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>RestServer</title>
 </head>
+
 <body>
     <a href="/api/users">Ir a la api</a>
+
+    <h2>Google Sign-In</h2>
+    <br/>
+
+    <div id="g_id_onload" data-client_id="1000379472037-rsta0oabkm7sbescrcig56iaou8luc17.apps.googleusercontent.com"
+        data-auto_prompt="false" data-callback="handleCredentialResponse">
+    </div>
+    <div class="g_id_signin" data-type="standard" data-size="large" data-theme="outline" data-text="sign_in_with"
+        data-shape="rectangular" data-logo_alignment="left">
+    </div>
+
+    <br/>
+
+    <div>
+        <button id="google-signout">
+            Sign Out
+        </button>
+    </div>
+
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+
+    <script>
+        function handleCredentialResponse(response) {
+            
+            // Google token
+            const body = { id_token: response.credential };
+
+            fetch('http://localhost:3000/api/auth/google', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify( body )
+            })
+            .then( resp => resp.json() )
+            .then( resp => {
+                localStorage.setItem( 'email', resp.user.email )
+                console.log( resp );
+            })
+            .catch( console.warn )
+
+        }
+
+
+        const signout = document.getElementById('google-signout')
+            signout.onclick = () => {
+                
+                google.accounts.id.disableAutoSelect();
+
+                google.accounts.id.revoke( localStorage.getItem('email'), done => {
+                    localStorage.clear();
+                    location.reload();
+                });
+            }
+
+    </script>
 </body>
+
 </html>
